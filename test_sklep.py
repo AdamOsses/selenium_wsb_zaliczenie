@@ -1,8 +1,8 @@
 """
 WSB zaliczenie Selenium - PP61398
-# Skrypt automatyzujcy przypadki testowe dla: https://automationpractice.com/
+# Skrypt automatyzujcy przypadki testowe dla: https://automationpractice.pl/
 """
-
+import time
 import unittest
 import inspect
 import random
@@ -15,8 +15,8 @@ class TestyNaZaliczenie(unittest.TestCase):
     def setUp(self):
         self.driver = webdriver.Chrome()
         self.driver.maximize_window()
-        self.driver.get("https://automationpractice.com/")
-        self.driver.implicitly_wait(10)
+        self.driver.get("https://automationpractice.pl/")
+        self.driver.implicitly_wait(2)
 
     def tearDown(self):
         self.driver.quit()
@@ -29,6 +29,7 @@ class TestyNaZaliczenie(unittest.TestCase):
         search_query.clear()
         search_query.send_keys(search_string)
         self.driver.find_element(By.NAME, "submit_search").click()
+        time.sleep(1)
         results = self.driver.find_elements(By.XPATH, '//ul[@class="product_list grid row"]//a[@class="product-name"]')
 
         # Sprawdza czy wyswietlil wyniki wyszukiwania
@@ -36,13 +37,15 @@ class TestyNaZaliczenie(unittest.TestCase):
 
         # Sprawdza czy wyniki wyszukiwania sa prawidlowe
         for result in results:
-            # print(result.text, end=', ')
             self.assertIn(search_string.lower(), result.text.lower(), "Nazwa produktu nie zawiera szukanego slowa.")
 
     def test_poprawnosc_kwoty_po_rabacie(self):
         print("ID:002 - klasa: " + self.__class__.__name__ + " -> " + inspect.stack()[0][3])
+        self.driver.find_element(By.CLASS_NAME, "blockbestsellers").click()
+        time.sleep(2)
         # Wyszukuje produkty w promocji
-        percent_reduction_node = '//*[@id="homefeatured"]//div[@class="right-block"]//span[@class="price-percent-reduction"]'
+        #percent_reduction_node = '//*[@id="homefeatured"]//div[@class="right-block"]//span[@class="price-percent-reduction"]' - juz nie dziala
+        percent_reduction_node = '//div[@class="product-container"]//div[@class="right-block"]//span[@class="price-percent-reduction"]'
         percent_reductions = self.driver.find_elements(By.XPATH, percent_reduction_node)
         old_products_prices = self.driver.find_elements(By.XPATH,\
                             percent_reduction_node + '//preceding-sibling::span[@class="old-price product-price"]')
@@ -68,9 +71,10 @@ class TestyNaZaliczenie(unittest.TestCase):
 
     def test_poprawnosc_kwoty_zakupu(self):
         print("ID:003 - klasa: " + self.__class__.__name__ + " -> " + inspect.stack()[0][3])
-
+        self.driver.find_element(By.CLASS_NAME, "blockbestsellers").click()
+        time.sleep(2)
         # Wybiera dwa lub wiecej produktow z wszystkich wyswietlonych na stronie
-        all_products = self.driver.find_elements(By.XPATH, '//ul[@id="homefeatured"]//div[@class="product-container"]')
+        all_products = self.driver.find_elements(By.XPATH, '//div[@class="product-container"]')
         product_count = len(all_products)
         self.assertGreater(product_count, 0, "Brak produkow.")
         selected_products = random.sample(range(product_count), random.randint(2, product_count))
@@ -80,7 +84,7 @@ class TestyNaZaliczenie(unittest.TestCase):
         # Dla kazdego z wybranych produktow otwiera strone szczegolowa i zwieksza liczbe zamawianych sztuk
         for p in selected_products:
             action.move_to_element(all_products[p]).perform()
-            more_button_xpath = f'//*[@id="homefeatured"]/li[{p + 1}]/div/div[2]/div[2]/a[2]'
+            more_button_xpath = f'(//div[@class="product-container"])[{p+1}]//a[@title="View"]'
             self.driver.find_element(By.XPATH, more_button_xpath).click()
             # Przechodzi do strony produktu
             price_label = self.driver.find_element(By.ID, 'our_price_display')

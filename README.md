@@ -17,12 +17,15 @@ $ pip install -r requirements.txt
 wget -N https://chromedriver.storage.googleapis.com/106.0.5249.61/chromedriver_linux64.zip -P ~/
 unzip ~/chromedriver_linux64.zip -d ~/
 rm ~/chromedriver_linux64.zip
+chmod +x chromedriver
 sudo mv -f ~/chromedriver /usr/local/bin/chromedriver
-chmod +x chromedriver*
 ```  
 
 ## Info: ##  
 
 ---  
-Testowana strona internetowa: https://automationpractice.com/  
+Testowana strona internetowa: https://automationpractice.pl/  
 Przeglądarka: Google Chrome
+
+## II 2023 ##  
+Strona ulegla zmianom - poprawione lokalizatory.
